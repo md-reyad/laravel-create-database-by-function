@@ -1,0 +1,56 @@
+how to insert data by api with laravel..??
+ 
+ 
+1.firstlly your laravel api project create  new middleware.
+                 $ php artisan make:middleware Cors
+ then now create app/Http/Middleware/Cors.php
+          
+ 
+<?php
+
+namespace AppHttpMiddleware;
+
+use Closure;
+
+class Cors {
+    public function handle($request, Closure $next)
+    {
+        return $next($request)
+            ->header('Access-Control-Allow-Origin', '*')
+            ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    }
+}
+
+
+
+
+2. Next update /app/Http/Kernel.php adding the following instruction which will make Laravel aware of your custom middleware:
+  
+     protected $middleware = [
+     IlluminateFoundationHttpMiddlewareCheckForMaintenanceMode::class,
+     IlluminateFoundationHttpMiddlewareValidatePostSize::class,
+     AppHttpMiddlewareTrimStrings::class,
+     IlluminateFoundationHttpMiddlewareConvertEmptyStringsToNull::class,
+     AppHttpMiddlewareCors::class // <<< add this line
+
+ ];
+
+
+ protected $routeMiddleware = [
+  'auth' => IlluminateAuthMiddlewareAuthenticate::class,
+ 'auth.basic' => IlluminateAuthMiddlewareAuthenticateWithBasicAuth::class,
+ 'bindings' => IlluminateRoutingMiddlewareSubstituteBindings::class,
+ 'can' => IlluminateAuthMiddlewareAuthorize::class,
+ 'guest' => AppHttpMiddlewareRedirectIfAuthenticated::class,
+ 'throttle' => IlluminateRoutingMiddlewareThrottleRequests::class,
+ 'cors' => AppHttpMiddlewareCors::class, // <<< add this line  
+
+ ]   
+
+3.Next update /route/web.php adding 
+
+   Route::group(['middleware' => ['cors']], function (){
+ 
+   });
+
+then work is fine...
